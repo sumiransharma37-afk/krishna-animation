@@ -1,236 +1,1768 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Divine Emergence – Little Krishna</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      overflow: hidden;
-      font-family: "Times New Roman", serif;
-    }
-    #credit {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      text-align: center;
-      color: #00ffff;
-      font-size: 18px;
-      text-shadow: 0 0 10px #ff00ff;
-      z-index: 10;
-    }
-    #play-btn {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 20;
-      padding: 14px 28px;
-      font-size: 18px;
-      letter-spacing: 1px;
-      color: #00ffff;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid #00ffff;
-      border-radius: 6px;
-      cursor: pointer;
-      text-shadow: 0 0 8px #ff00ff;
-    }
-    #play-btn:hover {
-      background: rgba(0,255,255,0.15);
-    }
-    canvas {
-      display: block;
-    }
-  </style>
-</head>
-<body>
-  <div id="credit">Developed by Sumiran Sharma</div>
-  <button id="play-btn">Play Divine Animation</button>
-  <canvas id="scene"></canvas>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Invisible YouTube player for music -->
-  <iframe id="music" width="0" height="0" style="position:fixed;border:0"
+<title>Divine Emergence – Little Krishna</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000000;
+    font-family: "Times New Roman", serif;
+}
+
+body {
+    background: #000000;
+}
+
+#scene {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000000;
+}
+
+#credit {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    z-index: 10;
+
+    color: #00ffff;
+    font-size: 18px;
+
+    text-shadow:
+        0 0 5px #00ffff,
+        0 0 10px #ff00ff;
+
+    pointer-events: none;
+}
+
+#play-btn {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    z-index: 20;
+
+    padding: 14px 28px;
+
+    font-size: 18px;
+    letter-spacing: 1px;
+
+    color: #00ffff;
+
+    background: rgba(0, 0, 0, 0.8);
+
+    border: 1px solid #00ffff;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    text-shadow: 0 0 8px #ff00ff;
+
+    box-shadow:
+        0 0 15px rgba(0, 255, 255, 0.2),
+        inset 0 0 10px rgba(0, 255, 255, 0.05);
+}
+
+#play-btn:hover {
+    background: rgba(0, 255, 255, 0.12);
+}
+</style>
+</head>
+
+<body>
+
+<div id="credit">
+    Developed by Sumiran Sharma
+</div>
+
+<button id="play-btn">
+    Play Divine Animation
+</button>
+
+<canvas id="scene"></canvas>
+
+
+<!-- =========================================================
+     YOUTUBE MUSIC
+     ========================================================= -->
+
+<iframe
+    id="music"
+    width="0"
+    height="0"
+    style="position:fixed;border:0"
     src=""
     frameborder="0"
     allow="autoplay">
-  </iframe>
+</iframe>
 
-  <script>
-    // ---------- Scene setup ----------
-    const canvas = document.getElementById('scene');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+<script>
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+"use strict";
+
+
+/* ============================================================
+   SCENE SETUP
+   ============================================================ */
+
+const canvas =
+    document.getElementById("scene");
+
+
+const renderer =
+    new THREE.WebGLRenderer({
+
+        canvas: canvas,
+
+        antialias: true,
+
+        alpha: false
     });
 
-    // ---------- Particle system ----------
-    const PARTICLE_COUNT = 10000;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(PARTICLE_COUNT * 3);
-    let targetPositions = new Float32Array(PARTICLE_COUNT * 3);
 
-    // random starting cloud
-    for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-      positions[i] = (Math.random() - 0.5) * 10;
-      targetPositions[i] = positions[i];
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio || 1,
+        2
+    )
+);
+
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+
+renderer.setClearColor(
+    0x000000,
+    1
+);
+
+
+const scene =
+    new THREE.Scene();
+
+
+scene.background =
+    new THREE.Color(0x000000);
+
+
+/* ============================================================
+   CAMERA
+   ============================================================ */
+
+const camera =
+    new THREE.OrthographicCamera(
+        -5,
+        5,
+        5,
+        -5,
+        0.1,
+        100
+    );
+
+
+camera.position.z = 10;
+
+
+/* ============================================================
+   PARTICLE SETTINGS
+   ============================================================ */
+
+const PARTICLE_COUNT = 40000;
+
+
+/*
+    Main particle arrays.
+*/
+
+const positions =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+const colors =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+const targetColors =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+/*
+    Exact image coordinates.
+
+    Every particle gets one stable position
+    inside the image.
+*/
+
+const imagePositions =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+/*
+    Final scattered positions.
+*/
+
+const scatterPositions =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+/*
+    Position from which the current image
+    starts assembling.
+*/
+
+const formationStartPositions =
+    new Float32Array(
+        PARTICLE_COUNT * 3
+    );
+
+
+/* ============================================================
+   RANDOM SCATTER
+   ============================================================ */
+
+function createRandomScatter() {
+
+    const result =
+        new Float32Array(
+            PARTICLE_COUNT * 3
+        );
+
+
+    for (
+        let i = 0;
+        i < PARTICLE_COUNT;
+        i++
+    ) {
+
+        const j = i * 3;
+
+
+        const radius =
+            4.5 +
+            Math.random() * 4.5;
+
+
+        const angle =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        const vertical =
+            Math.random() * 2 - 1;
+
+
+        const horizontal =
+            Math.sqrt(
+                Math.max(
+                    0,
+                    1 -
+                    vertical *
+                    vertical
+                )
+            );
+
+
+        result[j] =
+            radius *
+            horizontal *
+            Math.cos(angle);
+
+
+        result[j + 1] =
+            radius *
+            horizontal *
+            Math.sin(angle);
+
+
+        result[j + 2] =
+            radius *
+            vertical;
     }
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    const material = new THREE.PointsMaterial({
-      size: 0.03,
-      color: 0x00ffff,
-      transparent: true,
-      opacity: 0.85,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
+
+    return result;
+}
+
+
+/* ============================================================
+   INITIAL PARTICLE POSITIONS
+   ============================================================ */
+
+const initialScatter =
+    createRandomScatter();
+
+
+for (
+    let i = 0;
+    i < PARTICLE_COUNT * 3;
+    i++
+) {
+
+    positions[i] =
+        initialScatter[i];
+
+
+    colors[i] =
+        0.15;
+
+
+    targetColors[i] =
+        0.15;
+}
+
+
+/* ============================================================
+   THREE.JS GEOMETRY
+   ============================================================ */
+
+const geometry =
+    new THREE.BufferGeometry();
+
+
+geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(
+        positions,
+        3
+    )
+);
+
+
+geometry.setAttribute(
+    "color",
+    new THREE.BufferAttribute(
+        colors,
+        3
+    )
+);
+
+
+/* ============================================================
+   PARTICLE MATERIAL
+   ============================================================ */
+
+const material =
+    new THREE.PointsMaterial({
+
+        size: 0.026,
+
+        vertexColors: true,
+
+        transparent: true,
+
+        opacity: 0.96,
+
+        blending:
+            THREE.AdditiveBlending,
+
+        depthWrite: false,
+
+        sizeAttenuation: true
     });
 
-    const particleSystem = new THREE.Points(geometry, material);
-    scene.add(particleSystem);
 
-    // ---------- Image -> particle target sampler ----------
-    const loader = new THREE.TextureLoader();
+const particleSystem =
+    new THREE.Points(
+        geometry,
+        material
+    );
 
-    function loadImageTargets(url) {
-      return new Promise((resolve, reject) => {
-        loader.load(url, (texture) => {
-          const img = texture.image;
-          const size = 100; // sample grid resolution
-          const imgCanvas = document.createElement('canvas');
-          imgCanvas.width = size;
-          imgCanvas.height = size;
-          const ctx = imgCanvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, size, size);
-          const data = ctx.getImageData(0, 0, size, size).data;
 
-          // collect all bright/opaque pixel coords
-          const candidates = [];
-          for (let y = 0; y < size; y++) {
-            for (let x = 0; x < size; x++) {
-              const i = (y * size + x) * 4;
-              const alpha = data[i + 3];
-              const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-              if (alpha > 128 && brightness > 20) {
-                candidates.push(x, y);
-              }
-            }
-          }
+scene.add(
+    particleSystem
+);
 
-          if (candidates.length === 0) {
-            // no opaque/bright pixels found (e.g. fully transparent or fully black image) —
-            // fall back to a scattered cloud instead of producing NaN positions
-            resolve(randomScatterPositions());
-            return;
-          }
 
-          const pairCount = candidates.length / 2;
-          const targets = new Float32Array(PARTICLE_COUNT * 3);
-          for (let p = 0; p < PARTICLE_COUNT; p++) {
-            // cycle through candidates, jitter slightly so particles don't stack in dense/sparse spots
-            const ci = (p % pairCount) * 2;
-            const x = candidates[ci];
-            const y = candidates[ci + 1];
-            const jitterX = (Math.random() - 0.5) * 0.03;
-            const jitterY = (Math.random() - 0.5) * 0.03;
-            targets[p * 3]     = (x - size / 2) * 0.04 + jitterX;
-            targets[p * 3 + 1] = -(y - size / 2) * 0.04 + jitterY;
-            targets[p * 3 + 2] = (Math.random() - 0.5) * 0.3;
-          }
-          resolve(targets);
-        }, undefined, reject);
-      });
-    }
+/* ============================================================
+   IMPORTANT:
+   YOUR ORIGINAL FILE NAMES
+   ============================================================ */
 
-    function randomScatterPositions() {
-      const scatter = new Float32Array(PARTICLE_COUNT * 3);
-      for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
-        const radius = 4 + Math.random() * 4;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.random() * Math.PI;
-        scatter[i]     = radius * Math.sin(phi) * Math.cos(theta);
-        scatter[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        scatter[i + 2] = radius * Math.cos(phi);
-      }
-      return scatter;
-    }
+const IMAGES = [
 
-    // ---------- Animation loop (always running, lerps toward current target) ----------
-    let time = 0;
-    function animate() {
-      requestAnimationFrame(animate);
-      time += 0.01;
+    "little-krishna.jpeg",
 
-      const current = geometry.attributes.position.array;
-      for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
-        current[i]     += (targetPositions[i]     - current[i])     * 0.03;
-        current[i + 1] += (targetPositions[i + 1] - current[i + 1]) * 0.03;
-        current[i + 2] += (targetPositions[i + 2] - current[i + 2]) * 0.03;
+    "radha-krishna.jpeg"
 
-        // gentle floating wave
-        current[i + 1] += Math.sin(time + current[i]) * 0.002;
-      }
-      geometry.attributes.position.needsUpdate = true;
-      renderer.render(scene, camera);
-    }
-    animate();
+];
 
-    // ---------- Morph / scatter cycle, driven by Play button ----------
-    const IMAGES = ['little-krishna.jpeg', 'radha-krishna.jpeg'];
-    const HOLD_MS = 6000;     // how long the formed image stays
-    const SCATTER_MS = 4000;  // how long particles stay scattered before next image
 
-    function wait(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
+/* ============================================================
+   LOAD IMAGE
+   ============================================================ */
 
-    let cycling = false;
-    async function startCycle() {
-      if (cycling) return;
-      cycling = true;
-      let index = 0;
-      // preload target sets so there's no stall on first load
-      const cache = {};
-      for (let i = 0; i < IMAGES.length; i++) {
-        try {
-          cache[IMAGES[i]] = await loadImageTargets(IMAGES[i]);
-        } catch (err) {
-          console.warn(`Could not load "${IMAGES[i]}" — check the file is next to this HTML file. Using a scattered cloud instead.`, err);
-          cache[IMAGES[i]] = randomScatterPositions();
+function loadImage(url) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const image =
+                new Image();
+
+
+            image.onload =
+                function() {
+
+                    resolve(image);
+
+                };
+
+
+            image.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "Could not load image: " +
+                            url
+                        )
+                    );
+
+                };
+
+
+            image.src = url;
+
         }
-      }
+    );
+}
 
-      while (cycling) {
-        targetPositions = cache[IMAGES[index]];
-        await wait(HOLD_MS);
 
-        targetPositions = randomScatterPositions();
-        await wait(SCATTER_MS);
+/* ============================================================
+   CREATE PARTICLE TARGET FROM IMAGE
+   ============================================================ */
 
-        index = (index + 1) % IMAGES.length;
-      }
+async function createImageTarget(url) {
+
+    const image =
+        await loadImage(url);
+
+
+    /*
+        High-resolution sampling.
+
+        The original images are vertical,
+        so their aspect ratio is preserved.
+    */
+
+    const SAMPLE_HEIGHT = 420;
+
+
+    const aspect =
+        image.width /
+        image.height;
+
+
+    const sampleWidth =
+        Math.max(
+            1,
+            Math.round(
+                SAMPLE_HEIGHT *
+                aspect
+            )
+        );
+
+
+    const imageCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    imageCanvas.width =
+        sampleWidth;
+
+
+    imageCanvas.height =
+        SAMPLE_HEIGHT;
+
+
+    const context =
+        imageCanvas.getContext(
+            "2d",
+            {
+                willReadFrequently: true
+            }
+        );
+
+
+    context.drawImage(
+        image,
+        0,
+        0,
+        sampleWidth,
+        SAMPLE_HEIGHT
+    );
+
+
+    const pixels =
+        context.getImageData(
+            0,
+            0,
+            sampleWidth,
+            SAMPLE_HEIGHT
+        ).data;
+
+
+    const candidates = [];
+
+
+    /* ========================================================
+       FIND VISIBLE IMAGE PIXELS
+       ======================================================== */
+
+    for (
+        let y = 0;
+        y < SAMPLE_HEIGHT;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < sampleWidth;
+            x++
+        ) {
+
+            const k =
+                (
+                    y *
+                    sampleWidth +
+                    x
+                ) * 4;
+
+
+            const r =
+                pixels[k];
+
+
+            const g =
+                pixels[k + 1];
+
+
+            const b =
+                pixels[k + 2];
+
+
+            const a =
+                pixels[k + 3];
+
+
+            if (a < 100) {
+                continue;
+            }
+
+
+            const maxRGB =
+                Math.max(
+                    r,
+                    g,
+                    b
+                );
+
+
+            const brightness =
+                (
+                    r +
+                    g +
+                    b
+                ) / 3;
+
+
+            /*
+                IMPORTANT:
+
+                Very dark background pixels
+                are removed.
+
+                Therefore the rectangular
+                black border/background of
+                your JPEG does not become
+                a rectangular particle image.
+            */
+
+            if (
+                maxRGB < 18 &&
+                brightness < 13
+            ) {
+
+                continue;
+
+            }
+
+
+            candidates.push({
+
+                x: x,
+
+                y: y,
+
+                r: r / 255,
+
+                g: g / 255,
+
+                b: b / 255
+
+            });
+
+        }
+
     }
 
-    // ---------- Play button ----------
-    const playBtn = document.getElementById('play-btn');
-    const music = document.getElementById('music');
-    playBtn.addEventListener('click', () => {
-      playBtn.style.display = 'none';
-      // start audio only after a user gesture (browser autoplay policy)
-      music.src = 'https://www.youtube.com/embed/WTjZxav7naU?autoplay=1&loop=1&playlist=WTjZxav7naU';
-      startCycle();
-    });
-  </script>
+
+    if (
+        candidates.length === 0
+    ) {
+
+        throw new Error(
+            "No visible pixels found in " +
+            url
+        );
+
+    }
+
+
+    /* ========================================================
+       SELECT PARTICLES
+       ======================================================== */
+
+    const selected =
+        new Array(
+            PARTICLE_COUNT
+        );
+
+
+    /*
+        Structured sampling.
+
+        This is deliberately NOT random.
+
+        Each particle receives a predictable
+        location from the image.
+    */
+
+    if (
+        candidates.length <=
+        PARTICLE_COUNT
+    ) {
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            selected[i] =
+                candidates[
+                    i %
+                    candidates.length
+                ];
+
+        }
+
+    } else {
+
+        /*
+            Stratified sampling.
+
+            This prevents large empty areas and
+            random particle clusters.
+        */
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            const start =
+                Math.floor(
+                    i *
+                    candidates.length /
+                    PARTICLE_COUNT
+                );
+
+
+            const end =
+                Math.max(
+                    start + 1,
+
+                    Math.floor(
+                        (i + 1) *
+                        candidates.length /
+                        PARTICLE_COUNT
+                    )
+                );
+
+
+            const index =
+                start +
+                Math.floor(
+                    Math.random() *
+                    (end - start)
+                );
+
+
+            selected[i] =
+                candidates[index];
+
+        }
+
+    }
+
+
+    /* ========================================================
+       IMAGE SIZE
+       ======================================================== */
+
+    const imageAspect =
+        sampleWidth /
+        SAMPLE_HEIGHT;
+
+
+    /*
+        Large image.
+
+        The image is fitted into the
+        available screen while keeping
+        the complete artwork visible.
+    */
+
+    let sceneHeight = 8.8;
+
+
+    let sceneWidth =
+        sceneHeight *
+        imageAspect;
+
+
+    const viewportAspect =
+        window.innerWidth /
+        Math.max(
+            1,
+            window.innerHeight
+        );
+
+
+    const maxWidth =
+        9.0 *
+        viewportAspect;
+
+
+    if (
+        sceneWidth >
+        maxWidth
+    ) {
+
+        sceneWidth =
+            maxWidth;
+
+
+        sceneHeight =
+            sceneWidth /
+            imageAspect;
+
+    }
+
+
+    /*
+        Small margin so the artwork
+        does not touch the screen edge.
+    */
+
+    sceneWidth *= 0.90;
+    sceneHeight *= 0.90;
+
+
+    const resultPositions =
+        new Float32Array(
+            PARTICLE_COUNT * 3
+        );
+
+
+    const resultColors =
+        new Float32Array(
+            PARTICLE_COUNT * 3
+        );
+
+
+    /* ========================================================
+       ASSIGN EXACT POSITION + COLOR
+       ======================================================== */
+
+    for (
+        let i = 0;
+        i < PARTICLE_COUNT;
+        i++
+    ) {
+
+        const particle =
+            selected[i];
+
+
+        const j =
+            i * 3;
+
+
+        /*
+            Convert image pixel coordinate
+            into 3D coordinate.
+        */
+
+        const normalizedX =
+            (
+                (particle.x + 0.5) /
+                sampleWidth
+            ) - 0.5;
+
+
+        const normalizedY =
+            (
+                (particle.y + 0.5) /
+                SAMPLE_HEIGHT
+            ) - 0.5;
+
+
+        /*
+            Exact image position.
+        */
+
+        resultPositions[j] =
+            normalizedX *
+            sceneWidth;
+
+
+        resultPositions[j + 1] =
+            -normalizedY *
+            sceneHeight;
+
+
+        /*
+            Tiny depth variation.
+        */
+
+        resultPositions[j + 2] =
+            (
+                Math.random() -
+                0.5
+            ) * 0.10;
+
+
+        /*
+            EXACT IMAGE COLOR.
+        */
+
+        resultColors[j] =
+            particle.r;
+
+
+        resultColors[j + 1] =
+            particle.g;
+
+
+        resultColors[j + 2] =
+            particle.b;
+
+    }
+
+
+    return {
+
+        positions:
+            resultPositions,
+
+        colors:
+            resultColors
+
+    };
+
+}
+
+
+/* ============================================================
+   ANIMATION TIMINGS
+   ============================================================ */
+
+
+/*
+    12 seconds:
+    slow circular assembly.
+*/
+
+const FORM_TIME =
+    12000;
+
+
+/*
+    7 seconds:
+    image remains completely formed.
+*/
+
+const HOLD_TIME =
+    7000;
+
+
+/*
+    10 seconds:
+    slow circular disassembly.
+*/
+
+const BREAK_TIME =
+    10000;
+
+
+/*
+    2.5 seconds:
+    scattered particles pause.
+*/
+
+const SCATTER_TIME =
+    2500;
+
+
+/* ============================================================
+   ANIMATION STATE
+   ============================================================ */
+
+const imageCache = {};
+
+
+let currentImage = 0;
+
+
+let phase =
+    "idle";
+
+
+let phaseStart =
+    0;
+
+
+let running =
+    false;
+
+
+/* ============================================================
+   PRELOAD BOTH IMAGES
+   ============================================================ */
+
+async function preloadImages() {
+
+    for (
+        let i = 0;
+        i < IMAGES.length;
+        i++
+    ) {
+
+        imageCache[
+            IMAGES[i]
+        ] =
+            await createImageTarget(
+                IMAGES[i]
+            );
+
+    }
+
+}
+
+
+/* ============================================================
+   BEGIN IMAGE FORMATION
+   ============================================================ */
+
+function beginFormation() {
+
+    const target =
+        imageCache[
+            IMAGES[currentImage]
+        ];
+
+
+    /*
+        Store the exact image
+        particle coordinates.
+    */
+
+    imagePositions.set(
+        target.positions
+    );
+
+
+    /*
+        Store the exact particle colors.
+    */
+
+    targetColors.set(
+        target.colors
+    );
+
+
+    /*
+        Current positions become the
+        starting positions.
+    */
+
+    formationStartPositions.set(
+        geometry.attributes
+            .position
+            .array
+    );
+
+
+    phase =
+        "forming";
+
+
+    phaseStart =
+        performance.now();
+
+}
+
+
+/* ============================================================
+   BEGIN DISASSEMBLY
+   ============================================================ */
+
+function beginBreaking() {
+
+    const newScatter =
+        createRandomScatter();
+
+
+    scatterPositions.set(
+        newScatter
+    );
+
+
+    phase =
+        "breaking";
+
+
+    phaseStart =
+        performance.now();
+
+}
+
+
+/* ============================================================
+   NEXT IMAGE
+   ============================================================ */
+
+function nextImage() {
+
+    currentImage =
+        (
+            currentImage + 1
+        ) %
+        IMAGES.length;
+
+
+    beginFormation();
+
+}
+
+
+/* ============================================================
+   EASING
+   ============================================================ */
+
+function easeInOutCubic(t) {
+
+    if (t < 0.5) {
+
+        return (
+            4 *
+            t *
+            t *
+            t
+        );
+
+    }
+
+
+    return (
+        1 -
+        Math.pow(
+            -2 * t + 2,
+            3
+        ) / 2
+    );
+
+}
+
+
+/* ============================================================
+   MAIN ANIMATION
+   ============================================================ */
+
+let time = 0;
+
+
+function animate() {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    time += 0.01;
+
+
+    const now =
+        performance.now();
+
+
+    const p =
+        geometry.attributes
+            .position
+            .array;
+
+
+    const c =
+        geometry.attributes
+            .color
+            .array;
+
+
+    /* ========================================================
+       FORMING
+       ======================================================== */
+
+    if (
+        phase === "forming"
+    ) {
+
+        const progress =
+            Math.min(
+                1,
+
+                (
+                    now -
+                    phaseStart
+                ) /
+                FORM_TIME
+            );
+
+
+        const eased =
+            easeInOutCubic(
+                progress
+            );
+
+
+        /*
+            Every particle travels toward
+            its exact image position.
+
+            Circular movement is strongest
+            at the beginning and disappears
+            as the image becomes complete.
+        */
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            const j =
+                i * 3;
+
+
+            /*
+                Base movement.
+            */
+
+            const baseX =
+                formationStartPositions[j] +
+                (
+                    imagePositions[j] -
+                    formationStartPositions[j]
+                ) *
+                eased;
+
+
+            const baseY =
+                formationStartPositions[j + 1] +
+                (
+                    imagePositions[j + 1] -
+                    formationStartPositions[j + 1]
+                ) *
+                eased;
+
+
+            const baseZ =
+                formationStartPositions[j + 2] +
+                (
+                    imagePositions[j + 2] -
+                    formationStartPositions[j + 2]
+                ) *
+                eased;
+
+
+            /*
+                Individual circular orbit.
+            */
+
+            const angle =
+                time * 0.65 +
+                i * 0.021;
+
+
+            const orbitAmount =
+                (
+                    1 -
+                    eased
+                ) *
+                0.50;
+
+
+            const orbitX =
+                Math.cos(angle) *
+                orbitAmount;
+
+
+            const orbitY =
+                Math.sin(angle) *
+                orbitAmount;
+
+
+            /*
+                Additional curved/swirl movement.
+            */
+
+            const swirlAmount =
+                (
+                    1 -
+                    eased
+                ) *
+                0.18;
+
+
+            const swirl =
+                Math.sin(
+                    angle * 1.4 +
+                    i
+                ) *
+                swirlAmount;
+
+
+            p[j] =
+                baseX +
+                orbitX +
+                swirl;
+
+
+            p[j + 1] =
+                baseY +
+                orbitY +
+                swirl;
+
+
+            p[j + 2] =
+                baseZ +
+                Math.sin(angle) *
+                0.08 *
+                (
+                    1 -
+                    eased
+                );
+
+        }
+
+
+        /*
+            Smooth color transition.
+        */
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            const j =
+                i * 3;
+
+
+            c[j] +=
+                (
+                    targetColors[j] -
+                    c[j]
+                ) *
+                0.045;
+
+
+            c[j + 1] +=
+                (
+                    targetColors[j + 1] -
+                    c[j + 1]
+                ) *
+                0.045;
+
+
+            c[j + 2] +=
+                (
+                    targetColors[j + 2] -
+                    c[j + 2]
+                ) *
+                0.045;
+
+        }
+
+
+        /*
+            Once the animation reaches 100%,
+            snap to the exact image coordinates.
+
+            This is important because the following
+            7-second pause must show the COMPLETE image.
+        */
+
+        if (
+            progress >= 1
+        ) {
+
+            p.set(
+                imagePositions
+            );
+
+
+            phase =
+                "holding";
+
+
+            phaseStart =
+                now;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       HOLDING
+       ======================================================== */
+
+    else if (
+        phase === "holding"
+    ) {
+
+        /*
+            Completely stable image.
+
+            No movement.
+
+            This makes the final image
+            clearly recognizable.
+        */
+
+        p.set(
+            imagePositions
+        );
+
+
+        if (
+            now -
+            phaseStart >=
+            HOLD_TIME
+        ) {
+
+            beginBreaking();
+
+        }
+
+    }
+
+
+    /* ========================================================
+       BREAKING
+       ======================================================== */
+
+    else if (
+        phase === "breaking"
+    ) {
+
+        const progress =
+            Math.min(
+                1,
+
+                (
+                    now -
+                    phaseStart
+                ) /
+                BREAK_TIME
+            );
+
+
+        const eased =
+            easeInOutCubic(
+                progress
+            );
+
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            const j =
+                i * 3;
+
+
+            /*
+                Slow circular movement
+                during disassembly.
+            */
+
+            const angle =
+                time * 0.55 +
+                i * 0.019;
+
+
+            const orbit =
+                Math.sin(
+                    Math.PI *
+                    progress
+                ) *
+                0.65;
+
+
+            const curveX =
+                Math.cos(angle) *
+                orbit;
+
+
+            const curveY =
+                Math.sin(angle) *
+                orbit;
+
+
+            /*
+                Move from exact image
+                position to scattered position.
+            */
+
+            p[j] =
+                imagePositions[j] +
+                (
+                    scatterPositions[j] -
+                    imagePositions[j]
+                ) *
+                eased +
+                curveX;
+
+
+            p[j + 1] =
+                imagePositions[j + 1] +
+                (
+                    scatterPositions[j + 1] -
+                    imagePositions[j + 1]
+                ) *
+                eased +
+                curveY;
+
+
+            p[j + 2] =
+                imagePositions[j + 2] +
+                (
+                    scatterPositions[j + 2] -
+                    imagePositions[j + 2]
+                ) *
+                eased;
+
+        }
+
+
+        /*
+            Slowly change colors while
+            the particles disperse.
+        */
+
+        for (
+            let i = 0;
+            i < PARTICLE_COUNT;
+            i++
+        ) {
+
+            const j =
+                i * 3;
+
+
+            c[j] +=
+                (
+                    0.4 -
+                    c[j]
+                ) *
+                0.012;
+
+
+            c[j + 1] +=
+                (
+                    0.7 -
+                    c[j + 1]
+                ) *
+                0.012;
+
+
+            c[j + 2] +=
+                (
+                    1.0 -
+                    c[j + 2]
+                ) *
+                0.012;
+
+        }
+
+
+        if (
+            progress >= 1
+        ) {
+
+            p.set(
+                scatterPositions
+            );
+
+
+            phase =
+                "scattered";
+
+
+            phaseStart =
+                now;
+
+        }
+
+    }
+
+
+    /* ========================================================
+       SCATTERED PAUSE
+       ======================================================== */
+
+    else if (
+        phase === "scattered"
+    ) {
+
+        /*
+            Keep particles where they landed.
+        */
+
+        p.set(
+            scatterPositions
+        );
+
+
+        if (
+            now -
+            phaseStart >=
+            SCATTER_TIME
+        ) {
+
+            nextImage();
+
+        }
+
+    }
+
+
+    /* ========================================================
+       UPDATE
+       ======================================================== */
+
+    geometry.attributes
+        .position
+        .needsUpdate = true;
+
+
+    geometry.attributes
+        .color
+        .needsUpdate = true;
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+/* ============================================================
+   RESIZE
+   ============================================================ */
+
+function resize() {
+
+    const aspect =
+        window.innerWidth /
+        Math.max(
+            1,
+            window.innerHeight
+        );
+
+
+    const viewHeight = 5;
+
+
+    camera.top =
+        viewHeight;
+
+
+    camera.bottom =
+        -viewHeight;
+
+
+    camera.left =
+        -viewHeight *
+        aspect;
+
+
+    camera.right =
+        viewHeight *
+        aspect;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+
+resize();
+
+
+/* ============================================================
+   PLAY BUTTON + MUSIC
+   ============================================================ */
+
+const playButton =
+    document.getElementById(
+        "play-btn"
+    );
+
+
+const music =
+    document.getElementById(
+        "music"
+    );
+
+
+playButton.addEventListener(
+    "click",
+    async function() {
+
+        playButton.style.display =
+            "none";
+
+
+        /*
+            Your existing YouTube music.
+        */
+
+        music.src =
+            "https://www.youtube.com/embed/WTjZxav7naU?autoplay=1&loop=1&playlist=WTjZxav7naU";
+
+
+        try {
+
+            /*
+                Load both images first.
+            */
+
+            await preloadImages();
+
+
+            /*
+                First image:
+                little-krishna.jpeg
+            */
+
+            currentImage = 0;
+
+
+            beginFormation();
+
+
+            running = true;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            playButton.style.display =
+                "block";
+
+
+            playButton.textContent =
+                "Images not found";
+
+
+            alert(
+                "Make sure these files are in the same folder as index.html:\n\n" +
+                "little-krishna.jpeg\n" +
+                "radha-krishna.jpeg"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   START RENDERING
+   ============================================================ */
+
+animate();
+
+</script>
+
 </body>
 </html>
